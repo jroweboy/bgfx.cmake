@@ -12,7 +12,7 @@ if( TARGET glsl-optimizer )
 	return()
 endif()
 
-set( GLSL-OPTIMIZER_INCLUDES
+set( GLSL_OPTIMIZER_INCLUDES
 	${BGFX_DIR}/3rdparty/glsl-optimizer/include
 	${BGFX_DIR}/3rdparty/glsl-optimizer/src/mesa
 	${BGFX_DIR}/3rdparty/glsl-optimizer/src/mapi
@@ -27,34 +27,16 @@ string(REPLACE "-fsanitize=undefined" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" )
 
 # glcpp
 file( GLOB GLCPP_SOURCES ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/glcpp/*.c ${BGFX_DIR}/3rdparty/glsl-optimizer/src/util/*.c )
-add_library( glcpp ${GLCPP_SOURCES} )
-target_include_directories( glcpp PUBLIC ${GLSL-OPTIMIZER_INCLUDES} )
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-	target_compile_options( glcpp PRIVATE "-fno-strict-aliasing")
-endif()
-if( MSVC )
-	set_target_properties( glcpp PROPERTIES COMPILE_FLAGS "/W0" )
-endif()
-set_target_properties( glcpp PROPERTIES FOLDER "bgfx/3rdparty" )
 
 # mesa
 file( GLOB MESA_SOURCES ${BGFX_DIR}/3rdparty/glsl-optimizer/src/mesa/program/*.c ${BGFX_DIR}/3rdparty/glsl-optimizer/src/mesa/main/*.c )
-add_library( mesa ${MESA_SOURCES} )
-target_include_directories( mesa PUBLIC ${GLSL-OPTIMIZER_INCLUDES} )
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-	target_compile_options( mesa PRIVATE "-fno-strict-aliasing")
-endif()
-if( MSVC )
-	set_target_properties( mesa PROPERTIES COMPILE_FLAGS "/W0" )
-endif()
-set_target_properties( mesa PROPERTIES FOLDER "bgfx/3rdparty" )
 
 # glsl-optimizer
-file( GLOB GLSL-OPTIMIZER_SOURCES ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/*.cpp ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/*.c )
-file( GLOB GLSL-OPTIMIZER_SOURCES_REMOVE ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/main.cpp ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/builtin_stubs.cpp )
-list( REMOVE_ITEM GLSL-OPTIMIZER_SOURCES ${GLSL-OPTIMIZER_SOURCES_REMOVE} )
-add_library( glsl-optimizer ${GLSL-OPTIMIZER_SOURCES} )
-target_link_libraries( glsl-optimizer glcpp mesa )
+file( GLOB GLSL_OPTIMIZER_SOURCES ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/*.cpp ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/*.c )
+file( GLOB GLSL_OPTIMIZER_SOURCES_REMOVE ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/main.cpp ${BGFX_DIR}/3rdparty/glsl-optimizer/src/glsl/builtin_stubs.cpp )
+list( REMOVE_ITEM GLSL_OPTIMIZER_SOURCES ${GLSL_OPTIMIZER_SOURCES_REMOVE} )
+add_library( glsl-optimizer STATIC ${GLSL_OPTIMIZER_SOURCES} ${MESA_SOURCES} ${GLCPP_SOURCES})
+target_include_directories(glsl-optimizer PUBLIC ${GLSL_OPTIMIZER_INCLUDES})
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	target_compile_options( glsl-optimizer
 		PRIVATE
