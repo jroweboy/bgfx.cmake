@@ -46,6 +46,11 @@ else()
     add_library( bgfx SHARED ${BGFX_SOURCES} )
 endif()
 
+if(WIN32 AND NOT MSVC)
+	# force disable dx11 and dx12 on mingw
+	target_compile_definitions( bgfx PRIVATE BGFX_CONFIG_RENDERER_DIRECT3D11=0 BGFX_CONFIG_RENDERER_DIRECT3D12=0 )
+endif()
+
 if(BGFX_CONFIG_RENDERER_WEBGPU)
     include(cmake/3rdparty/webgpu.cmake)
     target_compile_definitions( bgfx PRIVATE BGFX_CONFIG_RENDERER_WEBGPU=1)
